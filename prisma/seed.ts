@@ -1,8 +1,19 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.activity.deleteMany();
+  await prisma.payment.deleteMany();
+  await prisma.quote.deleteMany();
+  await prisma.ticket.deleteMany();
+  await prisma.device.deleteMany();
+  await prisma.customer.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.branch.deleteMany();
+  await prisma.tenant.deleteMany();
+
   const tenant = await prisma.tenant.create({
     data: { name: "TigerFix Demo", plan: "pro" },
   });
@@ -11,6 +22,8 @@ async function main() {
     data: { tenantId: tenant.id, name: "Sucursal Centro", address: "CDMX" },
   });
 
+  const password = await bcrypt.hash("tigerfix", 10);
+
   const admin = await prisma.user.create({
     data: {
       tenantId: tenant.id,
@@ -18,6 +31,18 @@ async function main() {
       email: "admin@tigerfix.dev",
       name: "Egger Rojas",
       role: "ADMIN",
+      passwordHash: password,
+    },
+  });
+
+  const reception = await prisma.user.create({
+    data: {
+      tenantId: tenant.id,
+      branchId: branch.id,
+      email: "recepcion@tigerfix.dev",
+      name: "Ana Recepción",
+      role: "RECEPTION",
+      passwordHash: password,
     },
   });
 
@@ -28,6 +53,7 @@ async function main() {
       email: "luis@tigerfix.dev",
       name: "Luis Técnico",
       role: "TECHNICIAN",
+      passwordHash: password,
     },
   });
 
@@ -60,7 +86,7 @@ async function main() {
   ];
 
   for (const s of samples) {
-    await prisma.ticket.create({
+    const t = await prisma.ticket.create({
       data: {
         tenantId: tenant.id,
         branchId: branch.id,
@@ -76,9 +102,32 @@ async function main() {
         deposit: 400,
       },
     });
+
+    if (["APPROVED", "REPAIRING", "READY", "DELIVERED"].includes(s.status)) {
+      await prisma.payment.create({
+        data: {
+          ticketId: t.id,
+          amount: 400,
+          type: "DEPOSIT",
+          method: "cash",
+        },
+      });
+    }
+    if (s.status === "DELIVERED") {
+      await prisma.payment.create({
+        data: {
+          ticketId: t.id,
+          amount: 900,
+          type: "FINAL",
+          method: "card",
+        },
+      });
+    }
   }
 
-  console.log(`Seeded tenant ${tenant.id} with ${samples.length} tickets`);
+  console.log(
+    `Seeded tenant ${tenant.id} with 3 users (admin/recepcion/luis), ${samples.length} tickets`
+  );
 }
 
 main()

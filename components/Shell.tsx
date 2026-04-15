@@ -13,20 +13,55 @@ import {
   Settings,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
+import { logoutAction } from "@/app/login/actions";
 
-const items = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/kanban", label: "Kanban", icon: KanbanSquare },
-  { href: "/recepcion", label: "Recepción", icon: Inbox },
-  { href: "/tickets", label: "Tickets", icon: Wrench },
-  { href: "/pagos", label: "Pagos", icon: DollarSign },
-  { href: "/reportes", label: "Reportes", icon: BarChart3 },
-  { href: "/ajustes", label: "Ajustes", icon: Settings },
+type Role = "CLIENT" | "TECHNICIAN" | "RECEPTION" | "ADMIN";
+const ROLE_ORDER: Role[] = ["CLIENT", "TECHNICIAN", "RECEPTION", "ADMIN"];
+
+function hasRole(role: Role, min: Role) {
+  return ROLE_ORDER.indexOf(role) >= ROLE_ORDER.indexOf(min);
+}
+
+const ROLE_LABEL: Record<Role, string> = {
+  CLIENT: "Cliente",
+  TECHNICIAN: "Técnico",
+  RECEPTION: "Recepción",
+  ADMIN: "Administrador",
+};
+
+const items: {
+  href: string;
+  label: string;
+  icon: any;
+  minRole: Role;
+}[] = [
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, minRole: "TECHNICIAN" },
+  { href: "/kanban", label: "Kanban", icon: KanbanSquare, minRole: "TECHNICIAN" },
+  { href: "/recepcion", label: "Recepción", icon: Inbox, minRole: "RECEPTION" },
+  { href: "/tickets", label: "Tickets", icon: Wrench, minRole: "TECHNICIAN" },
+  { href: "/pagos", label: "Pagos", icon: DollarSign, minRole: "RECEPTION" },
+  { href: "/reportes", label: "Reportes", icon: BarChart3, minRole: "ADMIN" },
+  { href: "/ajustes", label: "Ajustes", icon: Settings, minRole: "TECHNICIAN" },
 ];
 
-function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
+type SessionUser = {
+  name: string;
+  email: string;
+  role: Role;
+};
+
+function SidebarBody({
+  user,
+  onNavigate,
+}: {
+  user: SessionUser;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
+  const visibleItems = items.filter((it) => hasRole(user.role, it.minRole));
+
   return (
     <div className="h-full flex flex-col">
       <div className="h-16 flex items-center px-5 border-b border-slate-100 shrink-0">
@@ -42,8 +77,9 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         </div>
       </div>
+
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {items.map((it) => {
+        {visibleItems.map((it) => {
           const active =
             it.href === "/" ? pathname === "/" : pathname.startsWith(it.href);
           return (
@@ -63,30 +99,49 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </nav>
-      <div className="p-4 border-t border-slate-100 text-xs text-slate-500 shrink-0">
-        <div className="font-medium text-slate-700">Sucursal Centro</div>
-        <div>Egger Rojas · Admin</div>
+
+      <div className="p-3 border-t border-slate-100 shrink-0">
+        <div className="px-2 py-2">
+          <div className="font-medium text-slate-800 text-sm truncate">
+            {user.name}
+          </div>
+          <div className="text-[11px] text-slate-500 truncate">
+            {user.email}
+          </div>
+          <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
+            {ROLE_LABEL[user.role]}
+          </div>
+        </div>
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+          >
+            <LogOut className="h-4 w-4" /> Cerrar sesión
+          </button>
+        </form>
       </div>
     </div>
   );
 }
 
-export default function Shell({ children }: { children: React.ReactNode }) {
+export default function Shell({
+  user,
+  children,
+}: {
+  user: SessionUser;
+  children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close drawer on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Lock body scroll when drawer open
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -94,12 +149,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
-      {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-60 shrink-0 border-r border-slate-200 bg-white sticky top-0 h-screen">
-        <SidebarBody />
+        <SidebarBody user={user} />
       </aside>
 
-      {/* Mobile drawer */}
       {open && (
         <div
           className="lg:hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40"
@@ -114,16 +167,15 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       >
         <button
           onClick={() => setOpen(false)}
-          className="absolute top-4 right-4 h-8 w-8 rounded-lg hover:bg-slate-100 grid place-items-center"
+          className="absolute top-4 right-4 h-8 w-8 rounded-lg hover:bg-slate-100 grid place-items-center z-10"
           aria-label="Cerrar menú"
         >
           <X className="h-4 w-4" />
         </button>
-        <SidebarBody onNavigate={() => setOpen(false)} />
+        <SidebarBody user={user} onNavigate={() => setOpen(false)} />
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Mobile burger button (floating anchor consumed by Topbar via context would be cleaner, but we inject inline) */}
         <button
           onClick={() => setOpen(true)}
           className="lg:hidden fixed top-3 left-3 z-30 h-10 w-10 rounded-lg bg-white border border-slate-200 shadow-card grid place-items-center"

@@ -40,13 +40,14 @@ model Branch {
 
 // Role: ADMIN | RECEPTION | TECHNICIAN | CLIENT
 model User {
-  id        String  @id @default(cuid())
-  tenantId  String
-  branchId  String?
-  email     String  @unique
-  name      String
-  role      String  @default("RECEPTION")
-  createdAt DateTime @default(now())
+  id           String  @id @default(cuid())
+  tenantId     String
+  branchId     String?
+  email        String  @unique
+  name         String
+  role         String  @default("RECEPTION")
+  passwordHash String  @default("")
+  createdAt    DateTime @default(now())
 
   tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   branch   Branch?  @relation(fields: [branchId], references: [id])

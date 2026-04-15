@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Shell from "@/components/Shell";
+import { getSession } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "TigerFix",
@@ -15,11 +16,13 @@ export const viewport: Viewport = {
   themeColor: "#f97316",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getSession();
+
   return (
     <html lang="es">
       <head>
@@ -31,7 +34,19 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans">
-        <Shell>{children}</Shell>
+        {session ? (
+          <Shell
+            user={{
+              name: session.name,
+              email: session.email,
+              role: session.role,
+            }}
+          >
+            {children}
+          </Shell>
+        ) : (
+          children
+        )}
       </body>
     </html>
   );

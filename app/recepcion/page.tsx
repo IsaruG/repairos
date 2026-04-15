@@ -1,7 +1,28 @@
 import Topbar from "@/components/Topbar";
 import { createTicket } from "./actions";
+import { getSession, hasRole } from "@/lib/auth";
+import { Lock } from "lucide-react";
 
-export default function RecepcionPage() {
+export default async function RecepcionPage() {
+  const me = await getSession();
+  if (!me) return null;
+
+  if (!hasRole(me, "RECEPTION")) {
+    return (
+      <>
+        <Topbar title="Recepción" />
+        <div className="p-6 grid place-items-center min-h-[60vh]">
+          <div className="card p-8 text-center max-w-sm">
+            <Lock className="h-8 w-8 mx-auto text-slate-400 mb-3" />
+            <h2 className="font-semibold mb-1">Acceso restringido</h2>
+            <p className="text-sm text-slate-500">
+              Solo recepción y administradores pueden recibir equipos.
+            </p>
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <Topbar title="Recepción de equipo" />
