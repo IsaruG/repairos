@@ -1,0 +1,214 @@
+// RepairOS - Core schema
+// Multi-tenant SaaS for electronics repair shops
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// =========================
+// Tenant & access control
+// =========================
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  plan      String   @default("starter") // starter | pro | enterprise
+  createdAt DateTime @default(now())
+
+  branches  Branch[]
+  users     User[]
+  customers Customer[]
+  tickets   Ticket[]
+  automations Automation[]
+}
+
+model Branch {
+  id       String @id @default(cuid())
+  tenantId String
+  name     String
+  address  String?
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  users   User[]
+  tickets Ticket[]
+}
+
+enum Role {
+  ADMIN
+  RECEPTION
+  TECHNICIAN
+  CLIENT
+}
+
+model User {
+  id        String  @id @default(cuid())
+  tenantId  String
+  branchId  String?
+  email     String  @unique
+  name      String
+  role      Role    @default(RECEPTION)
+  createdAt DateTime @default(now())
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  branch   Branch?  @relation(fields: [branchId], references: [id])
+
+  ticketsAsTechnician Ticket[]   @relation("TicketTechnician")
+  activities          Activity[]
+}
+
+// =========================
+// Customer & devices
+// =========================
+
+model Customer {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  phone     String
+  email     String?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  devices Device[]
+  tickets Ticket[]
+
+  @@index([tenantId, phone])
+}
+
+model Device {
+  id         String  @id @default(cuid())
+  customerId String
+  brand      String
+  model      String
+  imei       String?
+  color      String?
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tickets  Ticket[]
+}
+
+// =========================
+// Tickets (core entity)
+// =========================
+
+enum TicketStatus {
+  NEW         // Recepcion
+  DIAGNOSIS   // Diagnostico tecnico
+  QUOTED      // Cotizacion enviada
+  APPROVED    // Aprobada + anticipo
+  REPAIRING   // En reparacion
+  READY       // Listo para entrega
+  DELIVERED   // Entregado
+  ISSUE       // Problema
+}
+
+model Ticket {
+  id             String       @id @default(cuid())
+  tenantId       String
+  branchId       String
+  folio          String       @unique
+  customerId     String
+  deviceId       String
+  technicianId   String?
+  status         TicketStatus @default(NEW)
+  reportedIssue  String
+  diagnosis      String?
+  severity       String?      // low | mid | high
+  laborCost      Float        @default(0)
+  partsCost      Float        @default(0)
+  total          Float        @default(0)
+  deposit        Float        @default(0)
+  signatureUrl   String?
+  photos         String?      // JSON array of URLs
+  evidence       String?      // JSON array of URLs
+  receivedAt     DateTime     @default(now())
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  deliveredAt    DateTime?
+  slaDueAt       DateTime?
+
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  branch     Branch    @relation(fields: [branchId], references: [id])
+  customer   Customer  @relation(fields: [customerId], references: [id])
+  device     Device    @relation(fields: [deviceId], references: [id])
+  technician User?     @relation("TicketTechnician", fields: [technicianId], references: [id])
+
+  quote      Quote?
+  payments   Payment[]
+  activities Activity[]
+  messages   Message[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, branchId, receivedAt])
+}
+
+model Quote {
+  id         String   @id @default(cuid())
+  ticketId   String   @unique
+  items      String   // JSON array
+  total      Float
+  status     String   @default("pending") // pending | approved | rejected
+  sentAt     DateTime?
+  approvedAt DateTime?
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+enum PaymentType {
+  DEPOSIT
+  FINAL
+  REFUND
+}
+
+model Payment {
+  id        String      @id @default(cuid())
+  ticketId  String
+  amount    Float
+  type      PaymentType
+  method    String      // cash | card | transfer | stripe
+  createdAt DateTime    @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  ticketId  String
+  userId    String?
+  type      String   // status_change | note | photo | message
+  payload   String   // JSON
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  ticketId  String
+  channel   String   // whatsapp | email | sms
+  direction String   // in | out
+  body      String
+  status    String   @default("queued") // queued | sent | delivered | read | failed
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model Automation {
+  id        String  @id @default(cuid())
+  tenantId  String
+  name      String
+  trigger   String  // event name
+  condition String  // JSON
+  action    String  // JSON
+  enabled   Boolean @default(true)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
