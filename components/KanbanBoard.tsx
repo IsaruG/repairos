@@ -79,29 +79,29 @@ function TicketCard({
       {...(overlay ? {} : listeners)}
       className={`${baseClass} ${draggingClass} ${overlayClass}`}
     >
-      <div className="flex items-start justify-between gap-1.5">
-        <div className="font-mono text-[9px] text-slate-400 truncate">
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <div className="font-mono text-[9px] text-slate-400 truncate flex-1">
           {ticket.folio.replace(/^TGR-/, "")}
         </div>
         {sla && (
           <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${slaDot}`} />
         )}
       </div>
-      <div className="font-medium text-[12px] leading-tight truncate mt-0.5">
-        {ticket.deviceLabel}
-      </div>
-      <div className="text-[11px] text-slate-500 truncate leading-tight">
+      <div className="font-semibold text-[12.5px] leading-tight text-slate-900 break-words">
         {ticket.customerName}
       </div>
-      <div className="mt-1 flex items-center justify-between gap-1 text-[10px] text-slate-500">
-        <span className="truncate flex items-center gap-0.5">
+      <div className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">
+        {ticket.deviceLabel}
+      </div>
+      <div className="mt-1.5 flex items-center justify-between gap-1 text-[10px]">
+        <span className="truncate flex items-center gap-0.5 text-slate-500">
           <User className="h-2.5 w-2.5 shrink-0" />
           <span className="truncate">
             {ticket.technicianName ?? "Sin asignar"}
           </span>
         </span>
-        <span className="font-semibold tabular-nums text-slate-700 shrink-0">
-          ${Math.round(ticket.total / 100) / 10}k
+        <span className="font-bold tabular-nums text-slate-800 shrink-0">
+          ${(ticket.total / 1000).toFixed(1)}k
         </span>
       </div>
       {!overlay && (

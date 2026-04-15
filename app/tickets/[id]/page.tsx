@@ -2,7 +2,10 @@ import Topbar from "@/components/Topbar";
 import { prisma } from "@/lib/db";
 import { STATUS_COLOR, STATUS_LABEL, type TicketStatus } from "@/lib/status";
 import { notFound } from "next/navigation";
-import { MessageSquare, Phone, Mail, Calendar } from "lucide-react";
+import { Phone, Mail, Calendar } from "lucide-react";
+import { headers } from "next/headers";
+import PortalShareCard from "@/components/PortalShareCard";
+import { portalUrl } from "@/lib/modules/portal/token";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +29,12 @@ export default async function TicketDetail({
 
   const paid = ticket.payments.reduce((s, p) => s + p.amount, 0);
   const pending = ticket.total - paid;
+
+  const h = headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  const base = `${proto}://${host}`;
+  const customerPortalUrl = portalUrl(ticket.folio, base);
 
   return (
     <>
@@ -121,6 +130,13 @@ export default async function TicketDetail({
         </div>
 
         <div className="space-y-4 sm:space-y-6">
+          <PortalShareCard
+            url={customerPortalUrl}
+            folio={ticket.folio}
+            customerName={ticket.customer.name}
+            customerPhone={ticket.customer.phone}
+          />
+
           <div className="card p-5">
             <h3 className="font-semibold mb-3">Cliente</h3>
             <div className="space-y-2 text-sm">
@@ -134,9 +150,6 @@ export default async function TicketDetail({
                 </div>
               )}
             </div>
-            <button className="btn-primary w-full mt-4">
-              <MessageSquare className="h-4 w-4" /> Enviar por WhatsApp
-            </button>
           </div>
 
           <div className="card p-5">
