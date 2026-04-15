@@ -23,10 +23,13 @@ export default function Sidebar() {
   return (
     <aside className="w-60 shrink-0 border-r border-slate-200 bg-white h-screen sticky top-0 flex flex-col">
       <div className="h-16 flex items-center px-5 border-b border-slate-100">
-        <div className="h-8 w-8 rounded-lg bg-brand-600 grid place-items-center text-white font-bold">
-          R
+        <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 grid place-items-center text-white font-bold shadow-sm">
+          🐯
         </div>
-        <span className="ml-2 font-semibold tracking-tight">RepairOS</span>
+        <div className="ml-2.5">
+          <div className="font-bold tracking-tight text-slate-900 leading-none">TigerFix</div>
+          <div className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wider">repair os</div>
+        </div>
       </div>
       <nav className="flex-1 p-3 space-y-1">
         {items.map((it) => (

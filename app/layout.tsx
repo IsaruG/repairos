@@ -3,7 +3,7 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 
 export const metadata: Metadata = {
-  title: "RepairOS",
+  title: "TigerFix",
   description: "Gestión de reparaciones técnicas — from intake to delivery in 3 clicks.",
 };
 

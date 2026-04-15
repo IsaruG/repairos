@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const tenant = await prisma.tenant.create({
-    data: { name: "RepairOS Demo", plan: "pro" },
+    data: { name: "TigerFix Demo", plan: "pro" },
   });
 
   const branch = await prisma.branch.create({
@@ -15,7 +15,7 @@ async function main() {
     data: {
       tenantId: tenant.id,
       branchId: branch.id,
-      email: "admin@repairos.dev",
+      email: "admin@tigerfix.dev",
       name: "Egger Rojas",
       role: "ADMIN",
     },
@@ -25,7 +25,7 @@ async function main() {
     data: {
       tenantId: tenant.id,
       branchId: branch.id,
-      email: "luis@repairos.dev",
+      email: "luis@tigerfix.dev",
       name: "Luis Técnico",
       role: "TECHNICIAN",
     },
@@ -51,12 +51,12 @@ async function main() {
   });
 
   const samples: { status: string; folio: string; issue: string }[] = [
-    { status: "NEW", folio: "CDMX-2604-0001", issue: "No enciende" },
-    { status: "DIAGNOSIS", folio: "CDMX-2604-0002", issue: "Batería drena rápido" },
-    { status: "QUOTED", folio: "CDMX-2604-0003", issue: "Pantalla rota" },
-    { status: "REPAIRING", folio: "CDMX-2604-0004", issue: "Cambio de puerto carga" },
-    { status: "READY", folio: "CDMX-2604-0005", issue: "Reemplazo batería" },
-    { status: "DELIVERED", folio: "CDMX-2604-0006", issue: "Software reinstalación" },
+    { status: "NEW", folio: "TGR-CDMX-2604-0001", issue: "No enciende" },
+    { status: "DIAGNOSIS", folio: "TGR-CDMX-2604-0002", issue: "Batería drena rápido" },
+    { status: "QUOTED", folio: "TGR-CDMX-2604-0003", issue: "Pantalla rota" },
+    { status: "REPAIRING", folio: "TGR-CDMX-2604-0004", issue: "Cambio de puerto carga" },
+    { status: "READY", folio: "TGR-CDMX-2604-0005", issue: "Reemplazo batería" },
+    { status: "DELIVERED", folio: "TGR-CDMX-2604-0006", issue: "Software reinstalación" },
   ];
 
   for (const s of samples) {
