@@ -25,6 +25,8 @@ model Tenant {
   customers Customer[]
   tickets   Ticket[]
   automations Automation[]
+  parts     Part[]
+  services  Service[]
 }
 
 model Branch {
@@ -191,4 +193,45 @@ model Automation {
   enabled   Boolean @default(true)
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+// =========================
+// Inventory & price catalog
+// =========================
+
+model Part {
+  id               String   @id @default(cuid())
+  tenantId         String
+  sku              String
+  name             String
+  brand            String?
+  compatibleModels String?  // comma-separated (iPhone 13, iPhone 14, ...)
+  cost             Float    @default(0)
+  price            Float    @default(0)
+  stock            Int      @default(0)
+  minStock         Int      @default(2)
+  location         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, sku])
+  @@index([tenantId, name])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  category    String   @default("general") // screen | battery | software | diagnostic | general
+  price       Float    @default(0)
+  durationMin Int      @default(60)
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, category])
 }

@@ -1,8 +1,14 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import GlobalSearch from "./GlobalSearch";
+import AlertsBell from "./AlertsBell";
+import { getSession } from "@/lib/auth";
+import { computeAlerts } from "@/lib/modules/alerts/service";
 
-export default function Topbar({ title }: { title: string }) {
+export default async function Topbar({ title }: { title: string }) {
+  const me = await getSession();
+  const alerts = me ? await computeAlerts(me) : [];
+
   return (
     <header className="h-16 border-b border-slate-200 bg-white/80 backdrop-blur sticky top-0 z-20 flex items-center px-4 sm:px-6 gap-2 sm:gap-4">
       <div className="lg:hidden w-10 shrink-0" aria-hidden />
@@ -12,6 +18,8 @@ export default function Topbar({ title }: { title: string }) {
       </h1>
 
       <GlobalSearch />
+
+      <AlertsBell alerts={alerts} />
 
       <Link
         href="/recepcion"

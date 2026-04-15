@@ -7,7 +7,7 @@ const SECRET = new TextEncoder().encode(
 );
 const COOKIE = "tigerfix_session";
 
-const PUBLIC_PATHS = ["/login", "/api/health"];
+const PUBLIC_PATHS = ["/login", "/api/health", "/p"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

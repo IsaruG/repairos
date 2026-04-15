@@ -14,6 +14,9 @@ import {
   Menu,
   X,
   LogOut,
+  Package,
+  Tag,
+  Bell,
 } from "lucide-react";
 import { logoutAction } from "@/app/login/actions";
 
@@ -41,7 +44,10 @@ const items: {
   { href: "/kanban", label: "Kanban", icon: KanbanSquare, minRole: "TECHNICIAN" },
   { href: "/recepcion", label: "Recepción", icon: Inbox, minRole: "RECEPTION" },
   { href: "/tickets", label: "Tickets", icon: Wrench, minRole: "TECHNICIAN" },
+  { href: "/inventario", label: "Inventario", icon: Package, minRole: "TECHNICIAN" },
+  { href: "/precios", label: "Precios", icon: Tag, minRole: "TECHNICIAN" },
   { href: "/pagos", label: "Pagos", icon: DollarSign, minRole: "RECEPTION" },
+  { href: "/alertas", label: "Alertas", icon: Bell, minRole: "TECHNICIAN" },
   { href: "/reportes", label: "Reportes", icon: BarChart3, minRole: "ADMIN" },
   { href: "/ajustes", label: "Ajustes", icon: Settings, minRole: "TECHNICIAN" },
 ];

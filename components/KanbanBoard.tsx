@@ -58,15 +58,17 @@ function TicketCard({
   });
 
   const sla = slaState(ticket.slaDueAt);
-  const slaTone =
+  const slaDot =
     sla === "late"
-      ? "text-red-600"
+      ? "bg-red-500"
       : sla === "warn"
-        ? "text-amber-600"
-        : "text-emerald-600";
+        ? "bg-amber-500"
+        : sla === "ok"
+          ? "bg-emerald-500"
+          : "";
 
   const baseClass =
-    "card p-3 select-none transition-all hover:ring-2 hover:ring-brand-500/30";
+    "rounded-lg bg-white border border-slate-200 px-2.5 py-2 select-none transition-all hover:border-brand-400 hover:shadow-sm cursor-grab active:cursor-grabbing";
   const draggingClass = isDragging ? "opacity-30" : "";
   const overlayClass = overlay ? "rotate-2 shadow-2xl ring-2 ring-brand-500/40" : "";
 
@@ -77,46 +79,38 @@ function TicketCard({
       {...(overlay ? {} : listeners)}
       className={`${baseClass} ${draggingClass} ${overlayClass}`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="font-mono text-[10px] text-slate-500">
-          {ticket.folio}
+      <div className="flex items-start justify-between gap-1.5">
+        <div className="font-mono text-[9px] text-slate-400 truncate">
+          {ticket.folio.replace(/^TGR-/, "")}
         </div>
         {sla && (
-          <div className={`flex items-center gap-0.5 text-[10px] ${slaTone}`}>
-            {sla === "late" ? (
-              <AlertTriangle className="h-3 w-3" />
-            ) : (
-              <Clock className="h-3 w-3" />
-            )}
-            SLA
-          </div>
+          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${slaDot}`} />
         )}
       </div>
-      <div className="mt-1 font-medium text-sm truncate">
+      <div className="font-medium text-[12px] leading-tight truncate mt-0.5">
         {ticket.deviceLabel}
       </div>
-      <div className="text-xs text-slate-600 truncate">
+      <div className="text-[11px] text-slate-500 truncate leading-tight">
         {ticket.customerName}
       </div>
-      <div className="mt-1 text-[11px] text-slate-500 line-clamp-2">
-        {ticket.reportedIssue}
-      </div>
-      <div className="mt-2 flex items-center justify-between">
-        <div className="flex items-center gap-1 text-[11px] text-slate-500">
-          <User className="h-3 w-3" />
-          {ticket.technicianName ?? "Sin asignar"}
-        </div>
-        <span className="text-xs font-semibold tabular-nums">
-          ${ticket.total.toLocaleString("es-MX")}
+      <div className="mt-1 flex items-center justify-between gap-1 text-[10px] text-slate-500">
+        <span className="truncate flex items-center gap-0.5">
+          <User className="h-2.5 w-2.5 shrink-0" />
+          <span className="truncate">
+            {ticket.technicianName ?? "Sin asignar"}
+          </span>
+        </span>
+        <span className="font-semibold tabular-nums text-slate-700 shrink-0">
+          ${Math.round(ticket.total / 100) / 10}k
         </span>
       </div>
       {!overlay && (
         <Link
           href={`/tickets/${ticket.id}`}
-          className="block text-[10px] text-brand-600 mt-1.5 hover:underline"
+          className="hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          Abrir →
+          open
         </Link>
       )}
     </div>
@@ -138,21 +132,23 @@ function Column({
   });
 
   return (
-    <div className="w-[85vw] max-w-[320px] sm:w-72 shrink-0 flex flex-col snap-center sm:snap-start">
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2">
-          <span className={`pill ring-1 ${STATUS_COLOR[status]}`}>
+    <div className="w-[78vw] max-w-[260px] sm:w-auto sm:flex-1 sm:min-w-0 shrink-0 sm:shrink flex flex-col snap-center sm:snap-start min-h-0">
+      <div className="flex items-center justify-between mb-1.5 px-1">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className={`pill ring-1 text-[10px] ${STATUS_COLOR[status]}`}>
             {STATUS_LABEL[status]}
           </span>
-          <span className="text-xs text-slate-500">{tickets.length}</span>
+          <span className="text-[10px] text-slate-500 font-medium">
+            {tickets.length}
+          </span>
         </div>
-        <span className="text-[11px] text-slate-500 tabular-nums">
-          ${totalAmount.toLocaleString("es-MX")}
+        <span className="text-[10px] text-slate-400 tabular-nums">
+          ${Math.round(totalAmount / 1000)}k
         </span>
       </div>
       <div
         ref={setNodeRef}
-        className={`flex-1 space-y-2 rounded-xl p-2 transition-colors min-h-[200px] ${
+        className={`flex-1 min-h-0 space-y-1.5 rounded-lg p-1.5 transition-colors overflow-hidden bg-slate-50/50 ${
           isOver ? "bg-brand-50 ring-2 ring-brand-500/30" : ""
         }`}
       >
@@ -160,8 +156,8 @@ function Column({
           <TicketCard key={t.id} ticket={t} />
         ))}
         {tickets.length === 0 && (
-          <div className="text-xs text-slate-400 text-center py-8 border border-dashed border-slate-200 rounded-lg">
-            Suelta aquí
+          <div className="text-[10px] text-slate-400 text-center py-4 border border-dashed border-slate-200 rounded-lg">
+            —
           </div>
         )}
       </div>
@@ -238,7 +234,7 @@ export default function KanbanBoard({
         onDragStart={handleStart}
         onDragEnd={handleEnd}
       >
-        <div className="flex gap-3 sm:gap-4 min-w-max pb-4 px-4 sm:px-6 snap-x snap-mandatory sm:snap-none">
+        <div className="flex gap-2 sm:gap-2 h-full px-3 sm:px-4 snap-x snap-mandatory sm:snap-none overflow-x-auto sm:overflow-visible">
           {groups.map((g) => (
             <Column
               key={g.status}

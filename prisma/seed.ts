@@ -12,6 +12,8 @@ async function main() {
   await prisma.customer.deleteMany();
   await prisma.user.deleteMany();
   await prisma.branch.deleteMany();
+  await prisma.part.deleteMany();
+  await prisma.service.deleteMany();
   await prisma.tenant.deleteMany();
 
   const tenant = await prisma.tenant.create({
@@ -125,8 +127,40 @@ async function main() {
     }
   }
 
+  // Inventory
+  const parts = [
+    { sku: "SCR-IP13", name: "Pantalla iPhone 13 OLED", brand: "Apple", compatibleModels: "iPhone 13,iPhone 13 Pro", cost: 1800, price: 3500, stock: 4, minStock: 2 },
+    { sku: "SCR-IP14", name: "Pantalla iPhone 14", brand: "Apple", compatibleModels: "iPhone 14", cost: 2200, price: 4200, stock: 2, minStock: 2 },
+    { sku: "BAT-IP13", name: "Batería iPhone 13", brand: "Apple", compatibleModels: "iPhone 13", cost: 450, price: 950, stock: 8, minStock: 3 },
+    { sku: "BAT-IP14", name: "Batería iPhone 14", brand: "Apple", compatibleModels: "iPhone 14", cost: 500, price: 1050, stock: 1, minStock: 3 },
+    { sku: "SCR-S22", name: "Pantalla Samsung S22", brand: "Samsung", compatibleModels: "Galaxy S22", cost: 2000, price: 3800, stock: 3, minStock: 2 },
+    { sku: "BAT-S22", name: "Batería Samsung S22", brand: "Samsung", compatibleModels: "Galaxy S22", cost: 400, price: 850, stock: 0, minStock: 2 },
+    { sku: "CHG-USBC", name: "Puerto de carga USB-C universal", brand: "Genérico", compatibleModels: "Multi", cost: 120, price: 350, stock: 15, minStock: 5 },
+    { sku: "TOOL-KIT", name: "Kit herramientas reparación", brand: "iFixit", cost: 800, price: 0, stock: 3, minStock: 1 },
+  ];
+  for (const p of parts) {
+    await prisma.part.create({ data: { tenantId: tenant.id, ...p } });
+  }
+
+  // Service catalog
+  const services = [
+    { name: "Cambio de pantalla iPhone 13", category: "screen", price: 3500, durationMin: 45, description: "Incluye pantalla OLED original + mano de obra" },
+    { name: "Cambio de pantalla iPhone 14", category: "screen", price: 4200, durationMin: 45 },
+    { name: "Cambio de batería iPhone 13", category: "battery", price: 950, durationMin: 30 },
+    { name: "Cambio de batería iPhone 14", category: "battery", price: 1050, durationMin: 30 },
+    { name: "Cambio de pantalla Samsung S22", category: "screen", price: 3800, durationMin: 60 },
+    { name: "Cambio de puerto de carga", category: "screen", price: 450, durationMin: 40 },
+    { name: "Diagnóstico profesional", category: "diagnostic", price: 200, durationMin: 15 },
+    { name: "Reinstalación de software", category: "software", price: 350, durationMin: 60 },
+    { name: "Desbloqueo iCloud (verificación)", category: "software", price: 0, durationMin: 20 },
+    { name: "Limpieza interna + lubricación", category: "general", price: 250, durationMin: 30 },
+  ];
+  for (const s of services) {
+    await prisma.service.create({ data: { tenantId: tenant.id, ...s } });
+  }
+
   console.log(
-    `Seeded tenant ${tenant.id} with 3 users (admin/recepcion/luis), ${samples.length} tickets`
+    `Seeded tenant ${tenant.id}: 3 users, ${samples.length} tickets, ${parts.length} parts, ${services.length} services`
   );
 }
 
