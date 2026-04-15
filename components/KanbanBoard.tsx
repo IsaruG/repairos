@@ -8,6 +8,7 @@ import {
   DragStartEvent,
   PointerSensor,
   KeyboardSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCorners,
@@ -137,7 +138,7 @@ function Column({
   });
 
   return (
-    <div className="w-72 shrink-0 flex flex-col">
+    <div className="w-[85vw] max-w-[320px] sm:w-72 shrink-0 flex flex-col snap-center sm:snap-start">
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
           <span className={`pill ring-1 ${STATUS_COLOR[status]}`}>
@@ -180,6 +181,9 @@ export default function KanbanBoard({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 180, tolerance: 6 },
+    }),
     useSensor(KeyboardSensor)
   );
 
@@ -234,7 +238,7 @@ export default function KanbanBoard({
         onDragStart={handleStart}
         onDragEnd={handleEnd}
       >
-        <div className="flex gap-4 min-w-max pb-4 px-6">
+        <div className="flex gap-3 sm:gap-4 min-w-max pb-4 px-4 sm:px-6 snap-x snap-mandatory sm:snap-none">
           {groups.map((g) => (
             <Column
               key={g.status}

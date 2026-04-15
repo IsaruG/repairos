@@ -30,8 +30,8 @@ export default async function TicketDetail({
   return (
     <>
       <Topbar title={`Ticket ${ticket.folio}`} />
-      <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           <div className="card p-5">
             <div className="flex items-start justify-between">
               <div>
@@ -120,7 +120,7 @@ export default async function TicketDetail({
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="card p-5">
             <h3 className="font-semibold mb-3">Cliente</h3>
             <div className="space-y-2 text-sm">

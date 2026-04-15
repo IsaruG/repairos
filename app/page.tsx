@@ -38,14 +38,24 @@ function Kpi({
   tone: string;
 }) {
   return (
-    <div className="card p-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="text-xs font-medium text-slate-500">{label}</div>
-          <div className="mt-1 text-2xl font-semibold tracking-tight">{value}</div>
-          {delta && <div className="mt-1 text-xs text-emerald-600">{delta}</div>}
+    <div className="card p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="text-[11px] sm:text-xs font-medium text-slate-500 truncate">
+            {label}
+          </div>
+          <div className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight tabular-nums">
+            {value}
+          </div>
+          {delta && (
+            <div className="mt-1 text-[10px] sm:text-xs text-emerald-600">
+              {delta}
+            </div>
+          )}
         </div>
-        <div className={`h-9 w-9 rounded-lg grid place-items-center ${tone}`}>
+        <div
+          className={`h-8 w-8 sm:h-9 sm:w-9 rounded-lg grid place-items-center shrink-0 ${tone}`}
+        >
           <Icon className="h-4 w-4" />
         </div>
       </div>
@@ -59,8 +69,8 @@ export default async function DashboardPage() {
   return (
     <>
       <Topbar title="Dashboard" />
-      <div className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Kpi
             label="Equipos en proceso"
             value={String(m.inProcess)}
@@ -90,8 +100,8 @@ export default async function DashboardPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="card p-5 lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="card p-4 sm:p-5 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold">Ingresos últimos 30 días</h2>
               <span className="text-xs text-slate-500">Demo chart</span>
@@ -134,50 +144,97 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="card">
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div className="card overflow-hidden">
+          <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
             <h2 className="font-semibold">Tickets recientes</h2>
-            <Link href="/kanban" className="text-sm text-brand-600 hover:underline">
+            <Link
+              href="/kanban"
+              className="text-sm text-brand-600 hover:underline"
+            >
               Ver kanban →
             </Link>
           </div>
-          <table className="w-full text-sm">
-            <thead className="text-xs text-slate-500 bg-slate-50">
-              <tr>
-                <th className="text-left px-5 py-2">Folio</th>
-                <th className="text-left px-5 py-2">Cliente</th>
-                <th className="text-left px-5 py-2">Equipo</th>
-                <th className="text-left px-5 py-2">Estado</th>
-                <th className="text-right px-5 py-2">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {m.tickets.map((t) => (
-                <tr
-                  key={t.id}
-                  className="border-t border-slate-100 hover:bg-slate-50"
-                >
-                  <td className="px-5 py-3 font-mono text-xs">
-                    <Link href={`/tickets/${t.id}`} className="hover:text-brand-600">
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-xs text-slate-500 bg-slate-50">
+                <tr>
+                  <th className="text-left px-5 py-2">Folio</th>
+                  <th className="text-left px-5 py-2">Cliente</th>
+                  <th className="text-left px-5 py-2">Equipo</th>
+                  <th className="text-left px-5 py-2">Estado</th>
+                  <th className="text-right px-5 py-2">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {m.tickets.map((t) => (
+                  <tr
+                    key={t.id}
+                    className="border-t border-slate-100 hover:bg-slate-50"
+                  >
+                    <td className="px-5 py-3 font-mono text-xs">
+                      <Link
+                        href={`/tickets/${t.id}`}
+                        className="hover:text-brand-600"
+                      >
+                        {t.folio}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3">{t.customer.name}</td>
+                    <td className="px-5 py-3">
+                      {t.device.brand} {t.device.model}
+                    </td>
+                    <td className="px-5 py-3">
+                      <span
+                        className={`pill ring-1 ${STATUS_COLOR[t.status as TicketStatus]}`}
+                      >
+                        {STATUS_LABEL[t.status as TicketStatus]}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 text-right font-medium tabular-nums">
+                      ${t.total.toLocaleString("es-MX")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {m.tickets.map((t) => (
+              <Link
+                key={t.id}
+                href={`/tickets/${t.id}`}
+                className="block p-4 hover:bg-slate-50 active:bg-slate-100"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-mono text-[11px] text-slate-500">
                       {t.folio}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3">{t.customer.name}</td>
-                  <td className="px-5 py-3">
-                    {t.device.brand} {t.device.model}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className={`pill ring-1 ${STATUS_COLOR[t.status as TicketStatus]}`}>
+                    </div>
+                    <div className="font-medium text-sm truncate">
+                      {t.device.brand} {t.device.model}
+                    </div>
+                    <div className="text-xs text-slate-600 truncate">
+                      {t.customer.name}
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span
+                      className={`pill ring-1 ${STATUS_COLOR[t.status as TicketStatus]}`}
+                    >
                       {STATUS_LABEL[t.status as TicketStatus]}
                     </span>
-                  </td>
-                  <td className="px-5 py-3 text-right font-medium">
-                    ${t.total.toLocaleString("es-MX")}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <div className="mt-1 text-sm font-semibold tabular-nums">
+                      ${t.total.toLocaleString("es-MX")}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </>

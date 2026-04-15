@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
+import Shell from "@/components/Shell";
 
 export const metadata: Metadata = {
   title: "TigerFix",
-  description: "Gestión de reparaciones técnicas — from intake to delivery in 3 clicks.",
+  description:
+    "Gestión de reparaciones técnicas — from intake to delivery in 3 clicks.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#f97316",
 };
 
 export default function RootLayout({
@@ -23,10 +31,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans">
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <main className="flex-1 flex flex-col">{children}</main>
-        </div>
+        <Shell>{children}</Shell>
       </body>
     </html>
   );

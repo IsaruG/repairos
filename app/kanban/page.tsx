@@ -27,9 +27,12 @@ export default async function KanbanPage() {
   return (
     <>
       <Topbar title="Kanban operativo" />
-      <div className="py-6 overflow-x-auto">
+      <div className="py-4 sm:py-6 overflow-x-auto">
         <KanbanBoard initialTickets={tickets} />
       </div>
+      <p className="px-4 sm:px-6 pb-6 text-[11px] text-slate-400 sm:hidden">
+        Mantén presionado una tarjeta para arrastrar.
+      </p>
     </>
   );
 }

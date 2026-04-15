@@ -5,8 +5,8 @@ export default function RecepcionPage() {
   return (
     <>
       <Topbar title="Recepción de equipo" />
-      <div className="p-6 max-w-3xl">
-        <form action={createTicket} className="card p-6 space-y-6">
+      <div className="p-4 sm:p-6 max-w-3xl w-full">
+        <form action={createTicket} className="card p-4 sm:p-6 space-y-6">
           <section>
             <h2 className="font-semibold text-sm text-slate-700 mb-3">
               1 · Cliente
@@ -81,11 +81,11 @@ export default function RecepcionPage() {
             </label>
           </section>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-            <button type="reset" className="btn-ghost">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-slate-100">
+            <button type="reset" className="btn-ghost w-full sm:w-auto">
               Limpiar
             </button>
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="btn-primary w-full sm:w-auto">
               Generar folio →
             </button>
           </div>
