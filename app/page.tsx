@@ -1,6 +1,6 @@
 import Topbar from "@/components/Topbar";
 import { prisma } from "@/lib/db";
-import { STATUS_COLOR, STATUS_LABEL } from "@/lib/status";
+import { STATUS_COLOR, STATUS_LABEL, type TicketStatus } from "@/lib/status";
 import Link from "next/link";
 import { TrendingUp, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 
@@ -167,8 +167,8 @@ export default async function DashboardPage() {
                     {t.device.brand} {t.device.model}
                   </td>
                   <td className="px-5 py-3">
-                    <span className={`pill ring-1 ${STATUS_COLOR[t.status]}`}>
-                      {STATUS_LABEL[t.status]}
+                    <span className={`pill ring-1 ${STATUS_COLOR[t.status as TicketStatus]}`}>
+                      {STATUS_LABEL[t.status as TicketStatus]}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-right font-medium">

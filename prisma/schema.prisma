@@ -38,20 +38,14 @@ model Branch {
   tickets Ticket[]
 }
 
-enum Role {
-  ADMIN
-  RECEPTION
-  TECHNICIAN
-  CLIENT
-}
-
+// Role: ADMIN | RECEPTION | TECHNICIAN | CLIENT
 model User {
   id        String  @id @default(cuid())
   tenantId  String
   branchId  String?
   email     String  @unique
   name      String
-  role      Role    @default(RECEPTION)
+  role      String  @default("RECEPTION")
   createdAt DateTime @default(now())
 
   tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -97,17 +91,7 @@ model Device {
 // Tickets (core entity)
 // =========================
 
-enum TicketStatus {
-  NEW         // Recepcion
-  DIAGNOSIS   // Diagnostico tecnico
-  QUOTED      // Cotizacion enviada
-  APPROVED    // Aprobada + anticipo
-  REPAIRING   // En reparacion
-  READY       // Listo para entrega
-  DELIVERED   // Entregado
-  ISSUE       // Problema
-}
-
+// TicketStatus: NEW | DIAGNOSIS | QUOTED | APPROVED | REPAIRING | READY | DELIVERED | ISSUE
 model Ticket {
   id             String       @id @default(cuid())
   tenantId       String
@@ -116,7 +100,7 @@ model Ticket {
   customerId     String
   deviceId       String
   technicianId   String?
-  status         TicketStatus @default(NEW)
+  status         String       @default("NEW")
   reportedIssue  String
   diagnosis      String?
   severity       String?      // low | mid | high
@@ -160,18 +144,13 @@ model Quote {
   ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 }
 
-enum PaymentType {
-  DEPOSIT
-  FINAL
-  REFUND
-}
-
+// PaymentType: DEPOSIT | FINAL | REFUND
 model Payment {
-  id        String      @id @default(cuid())
+  id        String   @id @default(cuid())
   ticketId  String
   amount    Float
-  type      PaymentType
-  method    String      // cash | card | transfer | stripe
+  type      String
+  method    String   // cash | card | transfer | stripe
   createdAt DateTime    @default(now())
 
   ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)

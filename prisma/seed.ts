@@ -1,4 +1,4 @@
-import { PrismaClient, Role, TicketStatus } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -17,7 +17,7 @@ async function main() {
       branchId: branch.id,
       email: "admin@repairos.dev",
       name: "Egger Rojas",
-      role: Role.ADMIN,
+      role: "ADMIN",
     },
   });
 
@@ -27,7 +27,7 @@ async function main() {
       branchId: branch.id,
       email: "luis@repairos.dev",
       name: "Luis Técnico",
-      role: Role.TECHNICIAN,
+      role: "TECHNICIAN",
     },
   });
 
@@ -50,7 +50,7 @@ async function main() {
     },
   });
 
-  const samples: { status: TicketStatus; folio: string; issue: string }[] = [
+  const samples: { status: string; folio: string; issue: string }[] = [
     { status: "NEW", folio: "CDMX-2604-0001", issue: "No enciende" },
     { status: "DIAGNOSIS", folio: "CDMX-2604-0002", issue: "Batería drena rápido" },
     { status: "QUOTED", folio: "CDMX-2604-0003", issue: "Pantalla rota" },

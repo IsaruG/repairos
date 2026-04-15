@@ -1,4 +1,12 @@
-import type { TicketStatus } from "@prisma/client";
+export type TicketStatus =
+  | "NEW"
+  | "DIAGNOSIS"
+  | "QUOTED"
+  | "APPROVED"
+  | "REPAIRING"
+  | "READY"
+  | "DELIVERED"
+  | "ISSUE";
 
 export const STATUS_LABEL: Record<TicketStatus, string> = {
   NEW: "Nuevo",

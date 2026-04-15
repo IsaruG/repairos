@@ -1,6 +1,6 @@
 import Topbar from "@/components/Topbar";
 import { prisma } from "@/lib/db";
-import { STATUS_COLOR, STATUS_LABEL } from "@/lib/status";
+import { STATUS_COLOR, STATUS_LABEL, type TicketStatus } from "@/lib/status";
 import { notFound } from "next/navigation";
 import { MessageSquare, Phone, Mail, Calendar } from "lucide-react";
 
@@ -43,8 +43,8 @@ export default async function TicketDetail({
                   IMEI: <span className="font-mono">{ticket.device.imei ?? "—"}</span>
                 </div>
               </div>
-              <span className={`pill ring-1 ${STATUS_COLOR[ticket.status]}`}>
-                {STATUS_LABEL[ticket.status]}
+              <span className={`pill ring-1 ${STATUS_COLOR[ticket.status as TicketStatus]}`}>
+                {STATUS_LABEL[ticket.status as TicketStatus]}
               </span>
             </div>
             <div className="mt-4 pt-4 border-t border-slate-100">
